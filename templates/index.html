@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --background: #1a1a1a;
+            --surface: #2d2d2d;
+            --text: #ffffff;
+            --text-secondary: #b3b3b3;
+            --success: #4caf50;
+            --error: #f44336;
+            --loading: #2196f3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--surface);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ff0000, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .format-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .format-option {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: transparent;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .format-option.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .format-option:hover:not(.active) {
+            border-color: var(--primary);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(45deg, var(--primary), #ff6b6b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+        }
+
+        button[type="submit"]:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+        }
+
+        .success {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .loading {
+            background-color: rgba(33, 150, 243, 0.1);
+            color: var(--loading);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>YouTube Downloader</h1>
+    <p class="subtitle">Download your favorite YouTube videos as audio or video files</p>
+    <p class="subtitle">DO NOT USE THIS IF YOU ARE A JEW</p>
+    
+    <div class="container">
+        <form id="download-form">
+            <div class="input-group">
+                <input type="text" 
+                       id="youtube_url" 
+                       name="youtube_url" 
+                       placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=...)" 
+                       required>
+            </div>
+            
+            <div class="format-selector">
+                <button type="button" class="format-option active" data-format="audio">Audio (MP3)</button>
+                <button type="button" class="format-option" data-format="video">Video (MP4)</button>
+            </div>
+            
+            <button type="submit" id="download-button">Download Now</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Format selector functionality
+        const formatOptions = document.querySelectorAll('.format-option');
+        let selectedFormat = 'audio';
+
+        formatOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                formatOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                selectedFormat = option.dataset.format;
+            });
+        });
+
+        document.getElementById('download-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const button = document.getElementById('download-button');
+            const status = document.getElementById('status');
+            const url = document.getElementById('youtube_url').value;
+            
+            // Basic URL validation
+            if (!url.includes('youtube.com/') && !url.includes('youtu.be/')) {
+                status.textContent = 'Please enter a valid YouTube URL';
+                status.className = 'error';
+                status.style.display = 'block';
+                return;
+            }
+
+            // Disable form and show loading
+            button.disabled = true;
+            status.textContent = `Downloading ${selectedFormat}...`;
+            status.className = 'loading';
+            status.style.display = 'block';
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `youtube_url=${encodeURIComponent(url)}&format=${selectedFormat}`
+                });
+
+                if (response.ok) {
+                    // Get filename from Content-Disposition header
+                    const disposition = response.headers.get('Content-Disposition');
+                    const filename = disposition
+                        ? disposition.split('filename=')[1].replace(/["']/g, '')
+                        : `${selectedFormat === 'audio' ? 'audio.mp3' : 'video.mp4'}`;
+
+                    // Create blob and download
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    document.body.removeChild(a);
+
+                    status.textContent = 'Download completed successfully!';
+                    status.className = 'success';
+                } else {
+                    const error = await response.json();
+                    status.textContent = `Error: ${error.error || 'Failed to download media'}`;
+                    status.className = 'error';
+                }
+            } catch (error) {
+                status.textContent = `Error: ${error.message}`;
+                status.className = 'error';
+            } finally {
+                button.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
